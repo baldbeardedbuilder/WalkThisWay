@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "WalkThisWay (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "WalkThisWay (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
