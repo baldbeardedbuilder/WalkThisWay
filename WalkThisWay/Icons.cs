@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
-using System.Reflection;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Storage.Streams;
 
@@ -21,7 +20,7 @@ internal static class Icons
 	{
 		try
 		{
-			var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".";
+			var dir = AppContext.BaseDirectory;
 			var logoPath = Path.Combine(dir, "Assets", "StoreLogo.png");
 
 			if (File.Exists(logoPath))
