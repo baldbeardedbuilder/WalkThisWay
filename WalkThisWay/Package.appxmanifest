@@ -11,7 +11,7 @@
 
   <Identity
     Name="BaldBeardedBuilder.WalkThisWayforCommandPalette"
-    Publisher="CN=A8D6094E-1226-4E9C-B256-B81D585303AC"
+    Publisher="CN=Bald Bearded Builder LLC, O=Bald Bearded Builder LLC, L=Odenville, S=Alabama, C=US"
     Version="1.0.0.0" />
 
   <Properties>
