@@ -81,6 +81,7 @@ jobs:
   package:
     needs: build-and-test
     runs-on: windows-latest
+    environment: release
 
     steps:
       - name: Checkout code
