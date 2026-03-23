@@ -5,6 +5,7 @@ on:
     types: [published]
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
@@ -109,6 +110,26 @@ jobs:
           dotnet publish WalkThisWay/WalkThisWay.csproj -c Release -r win-arm64
           /p:PublishProfile=win-arm64
           /p:AppxPackageSigningEnabled=false
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign MSIX packages
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: bbb-signing
+          certificate-profile-name: BaldBeardedBuilder
+          files-folder: ${{ github.workspace }}\WalkThisWay
+          files-folder-filter: msix
+          files-folder-recurse: true
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       - name: Find and upload MSIX packages
         shell: pwsh
