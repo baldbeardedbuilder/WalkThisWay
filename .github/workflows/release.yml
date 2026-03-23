@@ -131,30 +131,28 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Find and upload MSIX packages
+      - name: Verify MSIX signatures
         shell: pwsh
         run: |
-          Write-Host "Searching for MSIX packages..."
-
-          if (Test-Path "WalkThisWay/AppPackages") {
-            Write-Host "AppPackages directory contents:"
-            Get-ChildItem -Path "WalkThisWay/AppPackages" -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
-          } else {
-            Write-Host "WalkThisWay/AppPackages directory does not exist"
-            Write-Host "Searching entire WalkThisWay directory for .msix files..."
-            Get-ChildItem -Path "WalkThisWay" -Filter "*.msix" -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
-          }
-
           $msixFiles = Get-ChildItem -Path "WalkThisWay" -Filter "*.msix" -Recurse
-
-          foreach ($file in $msixFiles) {
-            Write-Host "Found MSIX: $($file.FullName)"
-          }
 
           if ($msixFiles.Count -eq 0) {
             Write-Error "No MSIX packages found!"
             exit 1
           }
+
+          foreach ($file in $msixFiles) {
+            Write-Host "Verifying signature on $($file.Name)..."
+            $sig = Get-AuthenticodeSignature $file.FullName
+            Write-Host "  Status: $($sig.Status)"
+            Write-Host "  Signer: $($sig.SignerCertificate.Subject)"
+            if ($sig.Status -ne 'Valid') {
+              Write-Error "Signature on $($file.Name) is not valid: $($sig.Status)"
+              exit 1
+            }
+          }
+
+          Write-Host "All MSIX packages are signed and verified."
 
       - name: Upload MSIX artifacts
         uses: actions/upload-artifact@v4
