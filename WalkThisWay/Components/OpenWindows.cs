@@ -2,53 +2,44 @@
 // Bald Bearded Builder LLC licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Immutable;
 using Microsoft.CmdPal.Ext.WalkThisWay.Helpers;
 
 namespace Microsoft.CmdPal.Ext.WalkThisWay.Components;
 
 internal sealed class OpenWindows
 {
-	private static readonly Lock _enumLock = new();
+	private static readonly Lock _updateLock = new();
 	private static readonly Lazy<OpenWindows> _instance = new(() => new OpenWindows());
 
 	internal static OpenWindows Instance => _instance.Value;
 
-	private readonly List<Window> _windows = [];
+	private volatile ImmutableDictionary<IntPtr, Window> _windows = ImmutableDictionary<IntPtr, Window>.Empty;
 
 	private OpenWindows()
 	{
 	}
 
-	internal IReadOnlyList<Window> GetWindows()
-	{
-		lock (_enumLock)
-		{
-			return [.. _windows];
-		}
-	}
+	internal ImmutableDictionary<IntPtr, Window> GetWindows() => _windows;
 
 	internal void UpdateOpenWindowsList()
 	{
-		lock (_enumLock)
+		lock (_updateLock)
 		{
-			_windows.Clear();
-		}
+			var builder = ImmutableDictionary.CreateBuilder<IntPtr, Window>();
 
-		NativeMethods.EnumWindows(WindowEnumerationCallback, IntPtr.Zero);
-	}
-
-	private bool WindowEnumerationCallback(IntPtr hwnd, IntPtr lParam)
-	{
-		var window = new Window(hwnd);
-
-		if (window.ShouldBeIncluded())
-		{
-			lock (_enumLock)
+			NativeMethods.EnumWindows((hwnd, _) =>
 			{
-				_windows.Add(window);
-			}
-		}
+				var window = new Window(hwnd);
+				if (window.ShouldBeIncluded())
+				{
+					builder[hwnd] = window;
+				}
 
-		return true;
+				return true;
+			}, IntPtr.Zero);
+
+			_windows = builder.ToImmutable();
+		}
 	}
 }

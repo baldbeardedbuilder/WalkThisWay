@@ -28,8 +28,7 @@ internal sealed partial class WindowWalkerListPage : DynamicListPage
 		try
 		{
 			OpenWindows.Instance.UpdateOpenWindowsList();
-			var windows = OpenWindows.Instance.GetWindows();
-			return ResultHelper.GetResultList(windows, SearchText ?? string.Empty);
+			return ResultHelper.GetResultList(OpenWindows.Instance.GetWindows(), SearchText ?? string.Empty);
 		}
 		catch
 		{

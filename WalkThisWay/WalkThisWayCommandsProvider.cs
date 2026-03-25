@@ -86,13 +86,13 @@ public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 	private static string BuildHwndFingerprint()
 	{
 		var windows = OpenWindows.Instance.GetWindows();
-		return string.Join('|', windows.Select(w => w.Hwnd.ToString(CultureInfo.InvariantCulture)));
+		return string.Join('|', windows.Keys.Select(k => k.ToString(CultureInfo.InvariantCulture)));
 	}
 
 	private static string BuildTitleFingerprint()
 	{
 		var windows = OpenWindows.Instance.GetWindows();
-		return string.Join('|', windows.Select(w => $"{w.Hwnd.ToString(CultureInfo.InvariantCulture)}:{w.Title}"));
+		return string.Join('|', windows.Select(kv => $"{kv.Key.ToString(CultureInfo.InvariantCulture)}:{kv.Value.Title}"));
 	}
 
 	public override ICommandItem[] TopLevelCommands() => _topLevelItems;

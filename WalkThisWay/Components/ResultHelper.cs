@@ -2,6 +2,7 @@
 // Bald Bearded Builder LLC licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Immutable;
 using Microsoft.CmdPal.Ext.WalkThisWay.Commands;
 using Microsoft.CmdPal.Ext.WalkThisWay.Pages;
 using Microsoft.CommandPalette.Extensions;
@@ -11,19 +12,62 @@ namespace Microsoft.CmdPal.Ext.WalkThisWay.Components;
 
 internal static class ResultHelper
 {
-	internal static IListItem[] GetResultList(IReadOnlyList<Window> windows, string query)
+	private static readonly Lock _cacheLock = new();
+	private static readonly Dictionary<IntPtr, CachedWindowItem> _cache = [];
+
+	internal static IListItem[] GetResultList(ImmutableDictionary<IntPtr, Window> windows, string query)
 	{
 		if (windows.Count == 0)
 		{
+			lock (_cacheLock)
+			{
+				_cache.Clear();
+			}
+
 			return [];
 		}
 
-		IEnumerable<Window> filtered = windows;
+		lock (_cacheLock)
+		{
+			// Remove entries for windows that no longer exist
+			var staleKeys = _cache.Keys.Where(k => !windows.ContainsKey(k)).ToList();
+			foreach (var key in staleKeys)
+			{
+				_cache.Remove(key);
+			}
+
+			// Update or create entries for current windows
+			foreach (var (hwnd, window) in windows)
+			{
+				if (_cache.TryGetValue(hwnd, out var cached))
+				{
+					if (cached.Title != window.Title || cached.ProcessName != window.ProcessName)
+					{
+						cached.Title = window.Title;
+						cached.ProcessName = window.ProcessName;
+						cached.ListItem.Title = window.Title;
+						cached.ListItem.Subtitle = window.ProcessName;
+						cached.ListItem.Icon = window.GetIconInfo();
+					}
+				}
+				else
+				{
+					_cache[hwnd] = new CachedWindowItem
+					{
+						Title = window.Title,
+						ProcessName = window.ProcessName,
+						ListItem = CreateListItem(window),
+					};
+				}
+			}
+		}
+
+		IEnumerable<Window> filtered = windows.Values;
 
 		if (!string.IsNullOrWhiteSpace(query))
 		{
 			var lowerQuery = query.ToLowerInvariant();
-			filtered = windows
+			filtered = windows.Values
 				.Select(w => new
 				{
 					Window = w,
@@ -34,7 +78,10 @@ internal static class ResultHelper
 				.Select(x => x.Window);
 		}
 
-		return filtered.Select(CreateListItem).ToArray();
+		lock (_cacheLock)
+		{
+			return filtered.Select(w => _cache[w.Hwnd].ListItem).ToArray<IListItem>();
+		}
 	}
 
 	private static int ScoreWindow(Window window, string query)
@@ -116,5 +163,14 @@ internal static class ResultHelper
 		};
 
 		return listItem;
+	}
+
+	private sealed class CachedWindowItem
+	{
+		public required string Title { get; set; }
+
+		public required string ProcessName { get; set; }
+
+		public required WindowWalkerListItem ListItem { get; set; }
 	}
 }

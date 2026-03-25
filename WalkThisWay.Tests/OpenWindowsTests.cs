@@ -20,7 +20,7 @@ public class OpenWindowsTests
 	}
 
 	[TestMethod]
-	public void GetWindows_ReturnsNonNullList()
+	public void GetWindows_ReturnsNonNullDictionary()
 	{
 		var windows = OpenWindows.Instance.GetWindows();
 
@@ -30,9 +30,10 @@ public class OpenWindowsTests
 	[TestMethod]
 	public void GetWindows_ReturnsOnlyVisibleWindows()
 	{
+		OpenWindows.Instance.UpdateOpenWindowsList();
 		var windows = OpenWindows.Instance.GetWindows();
 
-		foreach (var window in windows)
+		foreach (var window in windows.Values)
 		{
 			Assert.IsTrue(window.IsVisible, $"Window '{window.Title}' should be visible");
 			Assert.IsFalse(string.IsNullOrWhiteSpace(window.Title), "Window should have a title");
