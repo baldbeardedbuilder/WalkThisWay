@@ -95,7 +95,14 @@ internal sealed partial class WindowWalkerListPage : DynamicListPage, IDisposabl
 
 		try
 		{
-			RaiseItemsChanged(0);
+			var previousKeys = OpenWindows.Instance.GetWindows().Keys;
+			OpenWindows.Instance.UpdateOpenWindowsList();
+			var currentKeys = OpenWindows.Instance.GetWindows().Keys;
+
+			if (!previousKeys.SequenceEqual(currentKeys))
+			{
+				RaiseItemsChanged(0);
+			}
 		}
 		catch
 		{
