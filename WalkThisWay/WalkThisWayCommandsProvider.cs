@@ -13,24 +13,20 @@ namespace Microsoft.CmdPal.Ext.WalkThisWay;
 public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 {
 	private readonly ICommandItem[] _topLevelItems;
-	private readonly ListPage _listPage;
-	private readonly CommandItem _item;
 
 	public WalkThisWayCommandsProvider()
 	{
 		Id = "com.baldbeardedbuilder.cmdpal.walkthisway";
 		DisplayName = Resources.plugin_name;
 		Icon = Icons.WalkThisWayIcon;
-		_listPage = new WindowWalkerListPage();
-		_item =
-			new CommandItem(_listPage)
+
+		_topLevelItems =
+		[
+			new CommandItem(new WindowWalkerListPage())
 			{
 				Icon = Icons.WalkThisWayIcon,
 				Title = Resources.top_level_command_title,
-			};
-		_topLevelItems =
-		[
-			_item
+			},
 		];
 	}
 
@@ -38,17 +34,16 @@ public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 
 	public override ICommandItem[]? GetDockBands()
 	{
-		
-		//var bandItems = OpenWindowsBand.GetOpenWindowItems();
+		var bandItems = OpenWindowsBand.GetOpenWindowItems();
 
-		//var wrappedBand = new WrappedDockItem(
-		//	bandItems,
-		//	"com.baldbeardedbuilder.cmdpal.walkthisway.openWindows",
-		//	Resources.dock_band_title);
+		var wrappedBand = new WrappedDockItem(
+			bandItems,
+			"com.baldbeardedbuilder.cmdpal.walkthisway.openWindows",
+			Resources.dock_band_title);
 
-		//wrappedBand.Icon = Icons.WalkThisWayIcon;
+		wrappedBand.Icon = Icons.WalkThisWayIcon;
 
-		return [_item];
+		return [wrappedBand];
 	}
 
 	public override void Dispose()
