@@ -21,6 +21,7 @@ public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 		Id = "com.baldbeardedbuilder.cmdpal.walkthisway";
 		DisplayName = Resources.plugin_name;
 		Icon = Icons.WalkThisWayIcon;
+		Settings = SettingsManager.Instance.Settings;
 
 		_topLevelPage = new WindowWalkerListPage(
 			"com.baldbeardedbuilder.cmdpal.walkthisway.windows",
@@ -30,7 +31,8 @@ public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 		_dockPage = new WindowWalkerListPage(
 			"com.baldbeardedbuilder.cmdpal.walkthisway.windows",
 			Resources.dock_band_title,
-			Resources.search_placeholder);
+			Resources.search_placeholder,
+			filterByDesktop: true);
 
 		_topLevelItems =
 		[
@@ -38,6 +40,10 @@ public sealed partial class WalkThisWayCommandsProvider : CommandProvider
 			{
 				Icon = Icons.WalkThisWayIcon,
 				Title = Resources.top_level_command_title,
+				MoreCommands =
+				[
+					new CommandContextItem(Settings.SettingsPage),
+				],
 			},
 		];
 

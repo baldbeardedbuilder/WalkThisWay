@@ -19,6 +19,8 @@ internal sealed partial class WindowEventHook : IDisposable
 	private readonly Lock _subscriberLock = new();
 	private readonly List<Action> _subscribers = [];
 	private readonly List<Action> _titleChangedSubscribers = [];
+	private readonly List<Action> _desktopChangedSubscribers = [];
+	private Guid _lastKnownDesktopId;
 	private uint _messageThreadId;
 
 	private WindowEventHook()
@@ -58,6 +60,36 @@ internal sealed partial class WindowEventHook : IDisposable
 		lock (_subscriberLock)
 		{
 			_titleChangedSubscribers.Remove(callback);
+		}
+	}
+
+	internal void SubscribeDesktopChanged(Action callback)
+	{
+		lock (_subscriberLock)
+		{
+			_desktopChangedSubscribers.Add(callback);
+		}
+	}
+
+	internal void UnsubscribeDesktopChanged(Action callback)
+	{
+		lock (_subscriberLock)
+		{
+			_desktopChangedSubscribers.Remove(callback);
+		}
+	}
+
+	private void NotifyDesktopChanged()
+	{
+		Action[] snapshot;
+		lock (_subscriberLock)
+		{
+			snapshot = [.. _desktopChangedSubscribers];
+		}
+
+		foreach (var callback in snapshot)
+		{
+			callback();
 		}
 	}
 
@@ -136,6 +168,16 @@ internal sealed partial class WindowEventHook : IDisposable
 
 		try
 		{
+			if (eventType == NativeMethods.EVENT_SYSTEM_FOREGROUND)
+			{
+				var desktopId = VirtualDesktopHelper.GetWindowDesktopId(hwnd);
+				if (desktopId != Guid.Empty && desktopId != _lastKnownDesktopId)
+				{
+					_lastKnownDesktopId = desktopId;
+					NotifyDesktopChanged();
+				}
+			}
+
 			var previousKeys = OpenWindows.Instance.GetWindows().Keys;
 			OpenWindows.Instance.UpdateOpenWindowsList();
 			var currentKeys = OpenWindows.Instance.GetWindows().Keys;
