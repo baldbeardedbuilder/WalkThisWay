@@ -85,4 +85,10 @@
   <data name="dock_band_title" xml:space="preserve">
     <value>Open Windows</value>
   </data>
+  <data name="setting_dock_current_desktop_only" xml:space="preserve">
+    <value>Dock: current desktop only</value>
+  </data>
+  <data name="setting_dock_current_desktop_only_description" xml:space="preserve">
+    <value>When enabled, the dock band only shows windows from the current virtual desktop</value>
+  </data>
 </root>

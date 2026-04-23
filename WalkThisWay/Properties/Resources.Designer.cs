@@ -125,5 +125,21 @@ namespace Microsoft.CmdPal.Ext.WalkThisWay
 				return ResourceManager.GetString("dock_band_title", resourceCulture);
 			}
 		}
+
+		public static string setting_dock_current_desktop_only
+		{
+			get
+			{
+				return ResourceManager.GetString("setting_dock_current_desktop_only", resourceCulture);
+			}
+		}
+
+		public static string setting_dock_current_desktop_only_description
+		{
+			get
+			{
+				return ResourceManager.GetString("setting_dock_current_desktop_only_description", resourceCulture);
+			}
+		}
 	}
 }

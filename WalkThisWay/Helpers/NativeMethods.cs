@@ -130,4 +130,60 @@ internal static partial class NativeMethods
 	[LibraryImport("kernel32.dll", EntryPoint = "QueryFullProcessImageNameW", StringMarshalling = StringMarshalling.Utf16)]
 	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool QueryFullProcessImageName(IntPtr hProcess, uint dwFlags, [Out] char[] lpExeName, ref uint lpdwSize);
+
+	// WinEvent hooks
+	internal delegate void WinEventDelegate(
+		IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+		int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+	[LibraryImport("user32.dll")]
+	internal static partial IntPtr SetWinEventHook(
+		uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
+		WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+	[LibraryImport("user32.dll")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool UnhookWinEvent(IntPtr hWinEventHook);
+
+	internal const uint EVENT_OBJECT_CREATE = 0x8000;
+	internal const uint EVENT_OBJECT_DESTROY = 0x8001;
+	internal const uint EVENT_OBJECT_NAMECHANGE = 0x800C;
+	internal const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+	internal const uint EVENT_SYSTEM_MINIMIZESTART = 0x0016;
+	internal const uint EVENT_SYSTEM_MINIMIZEEND = 0x0017;
+	internal const uint WINEVENT_OUTOFCONTEXT = 0x0000;
+	internal const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
+	internal const int OBJID_WINDOW = 0;
+
+	// Message pump
+	[LibraryImport("user32.dll", EntryPoint = "GetMessageW")]
+	internal static partial int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
+	[LibraryImport("user32.dll", EntryPoint = "TranslateMessage")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool TranslateMessage(in MSG lpMsg);
+
+	[LibraryImport("user32.dll", EntryPoint = "DispatchMessageW")]
+	internal static partial IntPtr DispatchMessage(in MSG lpMsg);
+
+	[LibraryImport("user32.dll", EntryPoint = "PostThreadMessageW")]
+	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool PostThreadMessage(uint idThread, uint Msg, IntPtr wParam, IntPtr lParam);
+
+	[LibraryImport("kernel32.dll")]
+	internal static partial uint GetCurrentThreadId();
+
+	internal const uint WM_QUIT = 0x0012;
+
+	[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+	internal struct MSG
+	{
+		internal IntPtr hwnd;
+		internal uint message;
+		internal IntPtr wParam;
+		internal IntPtr lParam;
+		internal uint time;
+		internal int pt_x;
+		internal int pt_y;
+	}
 }

@@ -15,6 +15,24 @@ internal static class ResultHelper
 	private static readonly Lock _cacheLock = new();
 	private static readonly Dictionary<IntPtr, CachedWindowItem> _cache = [];
 
+	internal static void UpdateCachedTitles(ImmutableDictionary<IntPtr, Window> windows)
+	{
+		lock (_cacheLock)
+		{
+			foreach (var (hwnd, window) in windows)
+			{
+				if (_cache.TryGetValue(hwnd, out var cached))
+				{
+					if (cached.Title != window.Title)
+					{
+						cached.Title = window.Title;
+						cached.ListItem.Title = window.Title;
+					}
+				}
+			}
+		}
+	}
+
 	internal static IListItem[] GetResultList(ImmutableDictionary<IntPtr, Window> windows, string query)
 	{
 		if (windows.Count == 0)

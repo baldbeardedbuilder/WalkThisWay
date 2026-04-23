@@ -3,19 +3,31 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.CmdPal.Ext.WalkThisWay.Components;
+using Microsoft.CmdPal.Ext.WalkThisWay.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace Microsoft.CmdPal.Ext.WalkThisWay.Pages;
 
-internal sealed partial class WindowWalkerListPage : DynamicListPage
+internal sealed partial class WindowWalkerListPage : DynamicListPage, IDisposable
 {
-	public WindowWalkerListPage()
+	private readonly bool _filterByDesktop;
+
+	public WindowWalkerListPage(string id, string name, string placeholderText, bool filterByDesktop = false)
 	{
 		Icon = Icons.WalkThisWayIcon;
-		Name = Resources.plugin_name;
-		Id = "com.baldbeardedbuilder.cmdpal.walkthisway";
-		PlaceholderText = Resources.search_placeholder;
+		Id = id;
+		Name = name;
+		PlaceholderText = placeholderText;
+		_filterByDesktop = filterByDesktop;
+
+		WindowEventHook.Instance.Subscribe(OnWindowsChanged);
+		WindowEventHook.Instance.SubscribeTitleChanged(OnTitlesChanged);
+
+		if (_filterByDesktop)
+		{
+			WindowEventHook.Instance.SubscribeDesktopChanged(OnWindowsChanged);
+		}
 	}
 
 	public override void UpdateSearchText(string oldSearch, string newSearch)
@@ -28,11 +40,41 @@ internal sealed partial class WindowWalkerListPage : DynamicListPage
 		try
 		{
 			OpenWindows.Instance.UpdateOpenWindowsList();
-			return ResultHelper.GetResultList(OpenWindows.Instance.GetWindows(), SearchText ?? string.Empty);
+			var windows = OpenWindows.Instance.GetWindows();
+
+			if (_filterByDesktop && SettingsManager.Instance.DockCurrentDesktopOnly)
+			{
+				windows = windows
+					.Where(kv => VirtualDesktopHelper.IsWindowOnCurrentDesktop(kv.Key))
+					.ToImmutableDictionary();
+			}
+
+			return ResultHelper.GetResultList(windows, SearchText ?? string.Empty);
 		}
 		catch
 		{
 			return [];
+		}
+	}
+
+	private void OnWindowsChanged()
+	{
+		RaiseItemsChanged(0);
+	}
+
+	private void OnTitlesChanged()
+	{
+		ResultHelper.UpdateCachedTitles(OpenWindows.Instance.GetWindows());
+	}
+
+	public void Dispose()
+	{
+		WindowEventHook.Instance.Unsubscribe(OnWindowsChanged);
+		WindowEventHook.Instance.UnsubscribeTitleChanged(OnTitlesChanged);
+
+		if (_filterByDesktop)
+		{
+			WindowEventHook.Instance.UnsubscribeDesktopChanged(OnWindowsChanged);
 		}
 	}
 }
