@@ -89,6 +89,14 @@ internal sealed class Window
 			return false;
 		}
 
+		// Skip headless ApplicationFrameHost frames (cloaked, no real UI)
+		if (IsCloaked &&
+			ClassName == "ApplicationFrameWindow" &&
+			string.Equals(ProcessName, "ApplicationFrameHost", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
 		// Skip Windows core window
 		if (ClassName == "Windows.UI.Core.CoreWindow")
 		{
