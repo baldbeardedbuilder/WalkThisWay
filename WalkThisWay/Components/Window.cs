@@ -90,9 +90,7 @@ internal sealed class Window
 		}
 
 		// Skip headless ApplicationFrameHost frames (cloaked, no real UI)
-		if (IsCloaked &&
-			ClassName == "ApplicationFrameWindow" &&
-			string.Equals(ProcessName, "ApplicationFrameHost", StringComparison.OrdinalIgnoreCase))
+		if (IsHeadlessAppFrame(ClassName, IsCloaked, () => Win32Helpers.HasHostedAppWindow(Hwnd)))
 		{
 			return false;
 		}
@@ -110,6 +108,17 @@ internal sealed class Window
 		}
 
 		return true;
+	}
+
+	/// <summary>
+	/// A cloaked UWP frame with no hosted app window is an empty shell, not a real window.
+	/// The hosted-window probe only runs once the cheaper checks have passed.
+	/// </summary>
+	internal static bool IsHeadlessAppFrame(string className, bool isCloaked, Func<bool> hasHostedAppWindow)
+	{
+		return isCloaked &&
+			className == Win32Helpers.ApplicationFrameClassName &&
+			!hasHostedAppWindow();
 	}
 
 	public IntPtr GetIcon()

@@ -76,6 +76,12 @@ public class Win32HelpersTests
 	}
 
 	[TestMethod]
+	public void HasHostedAppWindow_InvalidHandle_ReturnsFalse()
+	{
+		Assert.IsFalse(Win32Helpers.HasHostedAppWindow(IntPtr.Zero));
+	}
+
+	[TestMethod]
 	public void TryGetWindowIcon_InvalidHandle_ReturnsZero()
 	{
 		IntPtr icon = Win32Helpers.TryGetWindowIcon(IntPtr.Zero);
