@@ -18,6 +18,10 @@ internal static partial class NativeMethods
 
 	[LibraryImport("user32.dll")]
 	[return: MarshalAs(UnmanagedType.Bool)]
+	internal static partial bool EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+	[LibraryImport("user32.dll")]
+	[return: MarshalAs(UnmanagedType.Bool)]
 	internal static partial bool IsWindowVisible(IntPtr hWnd);
 
 	[LibraryImport("user32.dll")]

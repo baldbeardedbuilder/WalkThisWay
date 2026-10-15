@@ -100,6 +100,42 @@ internal static class Win32Helpers
 		return cloaked;
 	}
 
+	internal const string CoreWindowClassName = "Windows.UI.Core.CoreWindow";
+
+	internal const string ApplicationFrameClassName = "ApplicationFrameWindow";
+
+	/// <summary>
+	/// Whether a UWP frame window hosts a real app window: a child CoreWindow
+	/// owned by a different process than the frame itself.
+	/// </summary>
+	internal static bool HasHostedAppWindow(IntPtr hwnd)
+	{
+		if (hwnd == IntPtr.Zero)
+		{
+			return false;
+		}
+
+		NativeMethods.GetWindowThreadProcessId(hwnd, out uint framePid);
+		bool found = false;
+
+		NativeMethods.EnumChildWindows(hwnd, (child, _) =>
+		{
+			if (GetClassName(child) == CoreWindowClassName)
+			{
+				NativeMethods.GetWindowThreadProcessId(child, out uint childPid);
+				if (childPid != framePid)
+				{
+					found = true;
+					return false;
+				}
+			}
+
+			return true;
+		}, IntPtr.Zero);
+
+		return found;
+	}
+
 	internal static IntPtr TryGetWindowIcon(IntPtr hwnd, int timeoutMs = 100)
 	{
 		uint timeout = (uint)timeoutMs;
