@@ -12,7 +12,18 @@ A [PowerToys Command Palette](https://learn.microsoft.com/windows/powertoys/comm
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+See [Contributing](CONTRIBUTING.md) for setup, build commands, and how to submit
+changes. Everyone participating should follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Privacy and Security
+
+Window search runs locally. Read the [Privacy Policy](PRIVACY_POLICY.md) for
+details about window data and settings, and use the [Security Policy](SECURITY.md)
+to report vulnerabilities privately.
+
+## Releasing
+
+See [Releasing](RELEASING.md) for packaging, signing, and publishing GitHub releases.
 
 ## License
 

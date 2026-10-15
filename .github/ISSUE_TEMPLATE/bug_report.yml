@@ -1,0 +1,84 @@
+name: Bug Report
+description: Report a problem with Walk This Way
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what happened and how to reproduce it. Remove private window titles and file paths from anything you share.
+        For vulnerabilities, use [private security reporting](https://github.com/baldbeardedbuilder/WalkThisWay/security/advisories/new), not this form.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What were you trying to do, and what went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Open Command Palette.
+        2. Open Walk This Way or its dock band.
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: Windows Version
+      description: Include the version and build shown by winver.
+    validations:
+      required: true
+  - type: input
+    id: powertoys-version
+    attributes:
+      label: PowerToys Version
+    validations:
+      required: true
+  - type: input
+    id: extension-version
+    attributes:
+      label: Walk This Way Version
+      description: Include the installed package version if you know it.
+    validations:
+      required: false
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: Architecture
+      options:
+        - x64
+        - ARM64
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Remove private window titles, file paths, and other personal details first.
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Include affected apps, virtual desktop settings, or anything you've already tried.
+    validations:
+      required: false
