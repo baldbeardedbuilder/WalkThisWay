@@ -60,7 +60,7 @@ Ending a process can lose unsaved work.
 | `WalkThisWay\SettingsManager.cs` | Local preferences |
 | `WalkThisWay.Tests` | MSTest tests using Moq where needed |
 
-## Releases and License
+## License
 
-See [Releasing](RELEASING.md) for the release process. By contributing, you
+By contributing, you
 agree that your contributions are licensed under the [MIT License](LICENSE).
